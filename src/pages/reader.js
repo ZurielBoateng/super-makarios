@@ -24,6 +24,12 @@ const READ_THEMES = {
 
 let current = null; // holds teardown-able state for the active reader instance
 
+function useSpread() {
+  const wide = window.matchMedia("(min-width: 900px)").matches;
+  const finePointer = window.matchMedia("(pointer: fine)").matches;
+  return wide && finePointer ? "auto" : "none";
+}
+
 export function teardownReader() {
   if (!current) return;
   try {
@@ -32,6 +38,7 @@ export function teardownReader() {
     /* noop */
   }
   document.removeEventListener("keydown", current.onKeydown);
+  window.removeEventListener("resize", current.onResize);
   current = null;
 }
 
@@ -135,7 +142,7 @@ export async function renderReader(root, bookId, { onExit } = {}) {
       width: "100%",
       height: "100%",
       flow: "paginated",
-      spread: "none",
+      spread: useSpread(),
       allowScriptedContent: false,
     });
 
@@ -160,6 +167,10 @@ export async function renderReader(root, bookId, { onExit } = {}) {
     book.locations.generate(1600).catch(() => {});
 
     current = { rendition, book, onKeydown: null };
+
+    const onResize = () => rendition.spread(useSpread());
+    window.addEventListener("resize", onResize);
+    current.onResize = onResize;
 
     rendition.on("relocated", async (location) => {
       currentCfi = location.start.cfi;
