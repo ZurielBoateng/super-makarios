@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1F4A40"/>
+      <stop offset="1" stop-color="#123028"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="96" fill="url(#bg)"/>
+  <!-- open book -->
+  <g transform="translate(256 268)">
+    <path d="M0 -18 C -46 -46 -104 -46 -150 -30 L -150 118 C -104 100 -46 100 0 128 C 46 100 104 100 150 118 L 150 -30 C 104 -46 46 -46 0 -18 Z"
+          fill="none" stroke="#E7C877" stroke-width="14" stroke-linejoin="round" stroke-linecap="round"/>
+    <path d="M0 -18 L0 128" stroke="#E7C877" stroke-width="14" stroke-linecap="round"/>
+    <path d="M-118 -8 C -90 -18 -56 -18 -30 -6" fill="none" stroke="#E7C877" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+    <path d="M-118 24 C -90 14 -56 14 -30 26" fill="none" stroke="#E7C877" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+    <path d="M-118 56 C -90 46 -56 46 -30 58" fill="none" stroke="#E7C877" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+    <path d="M30 -6 C 56 -18 90 -18 118 -8" fill="none" stroke="#E7C877" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+    <path d="M30 26 C 56 14 90 14 118 24" fill="none" stroke="#E7C877" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+    <path d="M30 58 C 56 46 90 46 118 56" fill="none" stroke="#E7C877" stroke-width="10" stroke-linecap="round" opacity="0.85"/>
+  </g>
+  <!-- flame above spine -->
+  <path transform="translate(256 150)" d="M0 -34 C 16 -14 20 2 10 18 C 22 12 30 -2 26 -18 C 40 -4 44 20 30 38 C 14 58 -14 58 -30 38 C -44 20 -40 -4 -26 -18 C -22 6 -10 16 0 22 C -8 6 -8 -18 0 -34 Z" fill="#E7C877"/>
+</svg>
