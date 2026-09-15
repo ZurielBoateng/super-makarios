@@ -59,7 +59,7 @@ export default defineConfig(({ mode }) => {
                     ),
                     handler: "CacheFirst",
                     options: {
-                      cacheName: "church-reader-storage",
+                      cacheName: "super-makarios-storage",
                       expiration: {
                         maxEntries: 200,
                         maxAgeSeconds: 60 * 60 * 24 * 90,
@@ -73,7 +73,7 @@ export default defineConfig(({ mode }) => {
                     ),
                     handler: "NetworkFirst",
                     options: {
-                      cacheName: "church-reader-api",
+                      cacheName: "super-makarios-api",
                       networkTimeoutSeconds: 4,
                       expiration: {
                         maxEntries: 50,
