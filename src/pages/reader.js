@@ -212,22 +212,37 @@ export async function renderReader(root, bookId, { onExit } = {}) {
     document.addEventListener("keydown", onKeydown);
     current.onKeydown = onKeydown;
 
-    // Basic touch swipe support inside the rendition iframe.
+    // Handle horizontal swipes inside the rendition iframe without
+    // hijacking vertical scrolling or taps on links.
     rendition.on("rendered", () => {
       try {
         const doc = rendition.getContents()[0]?.document;
         if (!doc) return;
+        doc.body.style.touchAction = "pan-y";
         let startX = 0;
-        doc.addEventListener(
-          "touchstart",
-          (e) => (startX = e.changedTouches[0].screenX),
-        );
+        let startY = 0;
+        let tracking = false;
+
+        doc.addEventListener("touchstart", (e) => {
+          if (e.touches.length !== 1) return;
+          const touch = e.touches[0];
+          startX = touch.clientX;
+          startY = touch.clientY;
+          tracking = true;
+        }, { passive: true });
         doc.addEventListener("touchend", (e) => {
-          const dx = e.changedTouches[0].screenX - startX;
-          if (Math.abs(dx) < 40) return;
+          if (!tracking || e.changedTouches.length !== 1) return;
+          tracking = false;
+          const touch = e.changedTouches[0];
+          const dx = touch.clientX - startX;
+          const dy = touch.clientY - startY;
+          if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy)) return;
           if (dx > 0) rendition.prev();
           else rendition.next();
-        });
+        }, { passive: true });
+        doc.addEventListener("touchcancel", () => {
+          tracking = false;
+        }, { passive: true });
       } catch {
         /* iframe not ready / cross-origin quirk: swipe just won't be available */
       }
