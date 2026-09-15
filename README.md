@@ -1,5 +1,8 @@
 # Super Makarios
 
+PWA made with Claude code, feel free to use it as a template for other personal libraries
+link to Super Makarios: https://super-makarios.zab777.workers.dev/#/
+
 A installable reading app (PWA) for your church's books: bookshelves, a
 built-in EPUB reader with light/dark/sepia themes, bookmarking, reading
 progress, and offline downloads — plus an admin screen for adding and
