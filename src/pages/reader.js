@@ -159,6 +159,55 @@ export async function renderReader(root, bookId, { onExit } = {}) {
     rendition.themes.select(readTheme);
     rendition.themes.fontSize(`${FONT_STEPS[fontStepIndex]}%`);
 
+    // Install before the first display so the initial EPUB page is swipeable.
+    const installSwipeHandlers = () => {
+      try {
+        const doc = rendition.getContents()[0]?.document;
+        if (!doc || doc.body.dataset.swipeReady === "true") return;
+        doc.body.dataset.swipeReady = "true";
+        doc.body.style.touchAction = "pan-y";
+        let startX = 0;
+        let startY = 0;
+        let tracking = false;
+
+        doc.addEventListener(
+          "touchstart",
+          (e) => {
+            if (e.touches.length !== 1) return;
+            const touch = e.touches[0];
+            startX = touch.clientX;
+            startY = touch.clientY;
+            tracking = true;
+          },
+          { passive: true },
+        );
+        doc.addEventListener(
+          "touchend",
+          (e) => {
+            if (!tracking || e.changedTouches.length !== 1) return;
+            tracking = false;
+            const touch = e.changedTouches[0];
+            const dx = touch.clientX - startX;
+            const dy = touch.clientY - startY;
+            if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy)) return;
+            if (dx > 0) rendition.prev();
+            else rendition.next();
+          },
+          { passive: true },
+        );
+        doc.addEventListener(
+          "touchcancel",
+          () => {
+            tracking = false;
+          },
+          { passive: true },
+        );
+      } catch {
+        /* iframe not ready / cross-origin quirk: swipe just won't be available */
+      }
+    };
+    rendition.on("rendered", installSwipeHandlers);
+
     const savedProgress = await getProgress(bookId);
     await rendition.display(savedProgress?.cfi || undefined);
     els.loading.style.display = "none";
@@ -211,42 +260,6 @@ export async function renderReader(root, bookId, { onExit } = {}) {
     };
     document.addEventListener("keydown", onKeydown);
     current.onKeydown = onKeydown;
-
-    // Handle horizontal swipes inside the rendition iframe without
-    // hijacking vertical scrolling or taps on links.
-    rendition.on("rendered", () => {
-      try {
-        const doc = rendition.getContents()[0]?.document;
-        if (!doc) return;
-        doc.body.style.touchAction = "pan-y";
-        let startX = 0;
-        let startY = 0;
-        let tracking = false;
-
-        doc.addEventListener("touchstart", (e) => {
-          if (e.touches.length !== 1) return;
-          const touch = e.touches[0];
-          startX = touch.clientX;
-          startY = touch.clientY;
-          tracking = true;
-        }, { passive: true });
-        doc.addEventListener("touchend", (e) => {
-          if (!tracking || e.changedTouches.length !== 1) return;
-          tracking = false;
-          const touch = e.changedTouches[0];
-          const dx = touch.clientX - startX;
-          const dy = touch.clientY - startY;
-          if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy)) return;
-          if (dx > 0) rendition.prev();
-          else rendition.next();
-        }, { passive: true });
-        doc.addEventListener("touchcancel", () => {
-          tracking = false;
-        }, { passive: true });
-      } catch {
-        /* iframe not ready / cross-origin quirk: swipe just won't be available */
-      }
-    });
   } catch (err) {
     els.loading.style.display = "flex";
     els.loading.innerHTML = `<p>Couldn't render this book.</p><p>${escapeHtml(err.message || String(err))}</p>`;
