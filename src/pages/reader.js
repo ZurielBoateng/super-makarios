@@ -138,11 +138,12 @@ export async function renderReader(root, bookId, { onExit } = {}) {
 
   try {
     book = ePub(openSource);
+    let spreadMode = useSpread();
     rendition = book.renderTo(els.viewport, {
       width: "100%",
       height: "100%",
       flow: "paginated",
-      spread: useSpread(),
+      spread: spreadMode,
       allowScriptedContent: false,
     });
 
@@ -168,7 +169,15 @@ export async function renderReader(root, bookId, { onExit } = {}) {
 
     current = { rendition, book, onKeydown: null };
 
-    const onResize = () => rendition.spread(useSpread());
+    const onResize = () => {
+      const nextSpreadMode = useSpread();
+      if (nextSpreadMode === spreadMode) {
+        rendition.resize();
+        return;
+      }
+      spreadMode = nextSpreadMode;
+      rendition.spread(spreadMode);
+    };
     window.addEventListener("resize", onResize);
     current.onResize = onResize;
 
