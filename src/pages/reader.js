@@ -160,35 +160,40 @@ export async function renderReader(root, bookId, { onExit } = {}) {
     rendition.themes.fontSize(`${FONT_STEPS[fontStepIndex]}%`);
 
     // Install before the first display so the initial EPUB page is swipeable.
+    // Uses Pointer Events (not Touch Events) so a mouse/trackpad drag works
+    // the same as a real touch swipe — matters both for desktop testing and
+    // for devices that report drags as pointer input.
     const installSwipeHandlers = () => {
       try {
         const doc = rendition.getContents()[0]?.document;
         if (!doc || doc.body.dataset.swipeReady === "true") return;
         doc.body.dataset.swipeReady = "true";
         doc.body.style.touchAction = "pan-y";
+        doc.body.style.userSelect = "none";
+        doc.body.style.webkitUserSelect = "none";
+        doc.body.style.webkitTouchCallout = "none";
         let startX = 0;
         let startY = 0;
         let tracking = false;
 
         doc.addEventListener(
-          "touchstart",
+          "pointerdown",
           (e) => {
-            if (e.touches.length !== 1) return;
-            const touch = e.touches[0];
-            startX = touch.clientX;
-            startY = touch.clientY;
+            if (!e.isPrimary || (e.pointerType === "mouse" && e.button !== 0))
+              return;
+            startX = e.clientX;
+            startY = e.clientY;
             tracking = true;
           },
           { passive: true },
         );
         doc.addEventListener(
-          "touchend",
+          "pointerup",
           (e) => {
-            if (!tracking || e.changedTouches.length !== 1) return;
+            if (!tracking || !e.isPrimary) return;
             tracking = false;
-            const touch = e.changedTouches[0];
-            const dx = touch.clientX - startX;
-            const dy = touch.clientY - startY;
+            const dx = e.clientX - startX;
+            const dy = e.clientY - startY;
             if (Math.abs(dx) < 48 || Math.abs(dx) <= Math.abs(dy)) return;
             if (dx > 0) rendition.prev();
             else rendition.next();
@@ -196,7 +201,7 @@ export async function renderReader(root, bookId, { onExit } = {}) {
           { passive: true },
         );
         doc.addEventListener(
-          "touchcancel",
+          "pointercancel",
           () => {
             tracking = false;
           },
