@@ -170,13 +170,19 @@ export async function renderReader(root, bookId, { onExit } = {}) {
     current = { rendition, book, onKeydown: null };
 
     const onResize = () => {
-      const nextSpreadMode = useSpread();
-      if (nextSpreadMode === spreadMode) {
-        rendition.resize();
-        return;
-      }
-      spreadMode = nextSpreadMode;
-      rendition.spread(spreadMode);
+      requestAnimationFrame(() => {
+        const width = els.viewport.clientWidth;
+        const height = els.viewport.clientHeight;
+        if (!width || !height) return;
+
+        const nextSpreadMode = useSpread();
+        if (nextSpreadMode !== spreadMode) {
+          spreadMode = nextSpreadMode;
+          rendition.spread(spreadMode);
+        } else {
+          rendition.resize(width, height);
+        }
+      });
     };
     window.addEventListener("resize", onResize);
     current.onResize = onResize;
