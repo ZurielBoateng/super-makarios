@@ -28,6 +28,7 @@ export const icons = {
   chevronLeft: wrap('<path d="m14 6-6 6 6 6"/>'),
   chevronRight: wrap('<path d="m10 6 6 6-6 6"/>'),
   aa: wrap('<path d="M4 18 8.5 6h1L14 18M5.5 14h6.5M17 18v-6.2c0-1.2-.9-2-2-2s-2 .8-2 2"/>'),
+  info: wrap('<circle cx="12" cy="12" r="9"/><path d="M12 11v5.5M12 7.5h.01"/>'),
   shelf: wrap('<path d="M4 5v16M20 5v16M4 9h16M4 15h16"/>'),
   x: wrap('<path d="M6 6l12 12M18 6 6 18"/>'),
   edit: wrap('<path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>'),

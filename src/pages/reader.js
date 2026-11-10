@@ -1,5 +1,5 @@
 import ePub from "epubjs";
-import { fetchBook, epubUrl } from "../lib/supabase.js";
+import { fetchBook, epubUrl, coverUrl } from "../lib/supabase.js";
 import {
   getProgress,
   saveProgress,
@@ -50,6 +50,7 @@ export async function renderReader(root, bookId, { onExit } = {}) {
       <div class="reader__bar">
         <button class="icon-btn" id="exit-btn" aria-label="Back to library">${icon("back")}</button>
         <div class="reader__title" id="reader-title">Loading…</div>
+        <button class="icon-btn" id="description-btn" aria-label="Description" title="Description">${icon("info")}</button>
         <button class="icon-btn" id="bookmark-btn" aria-label="Bookmark this page">${icon("bookmark")}</button>
         <button class="icon-btn" id="download-btn" aria-label="Download for offline">${icon("download")}</button>
         <button class="icon-btn" id="settings-btn" aria-label="Reading settings">${icon("aa")}</button>
@@ -75,6 +76,7 @@ export async function renderReader(root, bookId, { onExit } = {}) {
     viewport: document.getElementById("viewport"),
     loading: document.getElementById("reader-loading"),
     exitBtn: document.getElementById("exit-btn"),
+    descriptionBtn: document.getElementById("description-btn"),
     bookmarkBtn: document.getElementById("bookmark-btn"),
     downloadBtn: document.getElementById("download-btn"),
     settingsBtn: document.getElementById("settings-btn"),
@@ -98,7 +100,7 @@ export async function renderReader(root, bookId, { onExit } = {}) {
   );
   if (fontStepIndex < 0) fontStepIndex = 1;
   let readTheme = (await getSetting("reader:theme")) || "light";
-  let panelMode = null; // 'settings' | 'bookmarks'
+  let panelMode = null; // 'settings' | 'bookmarks' | 'description'
   let downloaded = false;
   let currentCfi = null;
 
@@ -345,6 +347,32 @@ export async function renderReader(root, bookId, { onExit } = {}) {
     panelMode = null;
   }
 
+  function openDescriptionPanel() {
+    panelMode = "description";
+    els.panel.dataset.open = "true";
+    const cover = coverUrl(bookRow.cover_path);
+    const description = (bookRow.description || "").trim();
+    els.panelBody.innerHTML = `
+      <h3>Description</h3>
+      <div class="book-detail">
+        <div class="book-detail__cover">
+          ${
+            cover
+              ? `<img src="${escapeAttr(cover)}" alt="Cover of ${escapeAttr(bookRow.title)}" />`
+              : `<div class="book-card__fallback">${escapeHtml(initialsOf(bookRow.title))}</div>`
+          }
+        </div>
+        <div class="book-detail__title">${escapeHtml(bookRow.title)}</div>
+        ${bookRow.author ? `<div class="book-detail__author">${escapeHtml(bookRow.author)}</div>` : ""}
+        ${
+          description
+            ? `<p class="book-detail__text">${escapeHtml(description)}</p>`
+            : `<p class="book-detail__text book-detail__text--empty">No description has been added for this book yet.</p>`
+        }
+      </div>
+    `;
+  }
+
   function openSettingsPanel() {
     panelMode = "settings";
     els.panel.dataset.open = "true";
@@ -443,6 +471,14 @@ export async function renderReader(root, bookId, { onExit } = {}) {
       .addEventListener("click", openSettingsPanel);
   }
 
+  els.descriptionBtn.addEventListener("click", () => {
+    if (els.panel.dataset.open === "true" && panelMode === "description") {
+      closePanel();
+    } else {
+      openDescriptionPanel();
+    }
+  });
+
   els.settingsBtn.addEventListener("click", () => {
     if (els.panel.dataset.open === "true") {
       closePanel();
@@ -450,6 +486,18 @@ export async function renderReader(root, bookId, { onExit } = {}) {
       openSettingsPanel();
     }
   });
+}
+
+function initialsOf(title = "") {
+  return (
+    String(title)
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0])
+      .join("")
+      .toUpperCase() || "•"
+  );
 }
 
 function escapeHtml(s = "") {
