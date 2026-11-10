@@ -498,17 +498,185 @@ main {
   font-size: 0.78rem;
   color: var(--text-muted);
 }
-.reader__progress-track {
+.reader__chapter {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 0 1 38%;
+  min-width: 0;
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 0.78rem;
+  text-align: left;
+}
+.reader__chapter svg {
+  width: 18px;
+  height: 18px;
+  flex: none;
+}
+.reader__chapter span {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reader__pct {
+  min-width: 2.6em;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.reader__scrubber {
+  --p: 0%;
   flex: 1;
+  min-width: 60px;
+  height: 28px;
+  margin: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+.reader__scrubber::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--gold-fill) var(--p),
+    var(--surface-2) var(--p)
+  );
+}
+.reader__scrubber::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border-radius: 50%;
+  background: var(--gold-fill);
+  border: 2px solid var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+.reader__scrubber::-moz-range-track {
   height: 4px;
   border-radius: 999px;
   background: var(--surface-2);
-  overflow: hidden;
 }
-.reader__progress-fill {
-  height: 100%;
+.reader__scrubber::-moz-range-progress {
+  height: 4px;
+  border-radius: 999px;
   background: var(--gold-fill);
 }
+.reader__scrubber::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--gold-fill);
+  border: 2px solid var(--surface);
+}
+.toc-item {
+  display: block;
+  width: 100%;
+  padding: 11px 0;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  text-align: left;
+}
+.toc-item[data-current="true"] {
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* Reading area shows the book's own theme colour behind/around the page, so
+   sliding the page during a turn never reveals the app background. */
+.reader__body {
+  background: var(--read-bg, var(--bg));
+}
+.reader__gesture,
+.reader__status {
+  display: none;
+}
+
+/* Touch / phone layout: full-screen page, toolbars are overlays that toggle. */
+.reader--immersive .reader__body {
+  position: absolute;
+  inset: 0;
+}
+.reader--immersive .reader__bar,
+.reader--immersive .reader__footer {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 8;
+  transition: transform 0.22s ease;
+}
+.reader--immersive .reader__bar {
+  top: 0;
+}
+.reader--immersive .reader__footer {
+  bottom: 0;
+}
+.reader--immersive[data-chrome="hidden"] .reader__bar {
+  transform: translateY(-100%);
+}
+.reader--immersive[data-chrome="hidden"] .reader__footer {
+  transform: translateY(100%);
+}
+.reader--immersive .reader__viewport {
+  inset: calc(env(safe-area-inset-top, 0px) + 22px)
+    env(safe-area-inset-right, 0px)
+    calc(env(safe-area-inset-bottom, 0px) + 34px)
+    env(safe-area-inset-left, 0px);
+}
+.reader--immersive .reader__gesture {
+  display: block;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.reader--immersive .reader__nav {
+  display: none;
+}
+.reader--immersive .reader__status {
+  display: flex;
+  position: absolute;
+  left: calc(env(safe-area-inset-left, 0px) + 18px);
+  right: calc(env(safe-area-inset-right, 0px) + 18px);
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 8px);
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 0.72rem;
+  color: color-mix(in srgb, var(--read-fg, var(--text-muted)) 55%, transparent);
+  pointer-events: none;
+  z-index: 1;
+}
+.reader--immersive .reader__status span:first-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.reader--immersive .reader__loading {
+  z-index: 3;
+}
+.reader--immersive .reader__panel {
+  top: var(--bar-h, 58px);
+  padding-bottom: calc(var(--foot-h, 44px) + 18px);
+}
+html,
+body {
+  overscroll-behavior: none;
+}
+
 .reader__loading,
 .reader__message {
   position: absolute;
